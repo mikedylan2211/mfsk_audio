@@ -174,6 +174,9 @@ class MFSKReceiver:
             if len(data_syms) < 4 or len(data_syms) % 2:
                 return None
 
+            if any(s >= self.cfg.DATA_TONES for s in data_syms):
+                continue
+
             raw = bytearray()
             for j in range(0, len(data_syms), 2):
                 raw.append((data_syms[j] << 4) | data_syms[j+1])
@@ -200,7 +203,7 @@ class MFSKReceiver:
 
                     for offset in range(
                         0,
-                        len(self.buffer) - self.cfg.SAMPLES_PER_SYMBOL,
+                        len(self.buffer) - self.cfg.SAMPLES_PER_SYMBOL + 1,
                         self.cfg.SLIDE_STEP
                     ):
                         sym = self.detect_symbol(
@@ -220,6 +223,8 @@ class MFSKReceiver:
                             break
 
                     if not detected:
+                        if len(self.buffer) > self.cfg.SAMPLES_PER_SYMBOL:
+                            self.buffer = self.buffer[-self.cfg.SAMPLES_PER_SYMBOL:]
                         break
 
                 if time.time() - self.last_symbol_time > self.cfg.FRAME_TIMEOUT:
@@ -304,11 +309,15 @@ def main():
 
     if args.device is not None:
         sd.default.device = (args.device, args.device)
-    else:
-        if args.input_device is not None:
-            sd.default.input_device = args.input_device
-        if args.output_device is not None:
-            sd.default.output_device = args.output_device
+    elif args.input_device is not None or args.output_device is not None:
+        current = sd.default.device
+        if isinstance(current, (list, tuple)) and len(current) == 2:
+            cur_in, cur_out = current
+        else:
+            cur_in, cur_out = current, current
+        in_dev = args.input_device if args.input_device is not None else cur_in
+        out_dev = args.output_device if args.output_device is not None else cur_out
+        sd.default.device = (in_dev, out_dev)
 
     cfg = MFSKConfig()
 
