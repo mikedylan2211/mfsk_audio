@@ -2,7 +2,7 @@ MFSK AUDIO COMMUNICATION SYSTEM
 
 OVERVIEW
 
-This program implements a simple and reliable audio-based data communication system using M-ary Frequency Shift Keying (MFSK). Text messages are transmitted and received over standard audio hardware such as speakers and microphones.
+This program implements an audio-based data communication system using M-ary Frequency Shift Keying (MFSK). Text messages are transmitted and received over standard audio hardware such as speakers and microphones.
 
 The system operates entirely in the audible frequency range and is just a fun project of mine. I didn'd use ultrasonic frequencies as most cheap microphones don't reliably receive them.
 
